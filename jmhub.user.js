@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JMHub 镜像自动跳转
 // @namespace    https://github.com/Carolove7/jmhub
-// @version      1.2.0
+// @version      1.3.0
 // @description  访问主站地址时立即跳转最新镜像
 // @author       Carolove7
 // @homepageURL  https://github.com/Carolove7/jmhub
