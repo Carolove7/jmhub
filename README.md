@@ -10,13 +10,14 @@
 4. 将最新结果保存到 `data/mirror.json`。
 5. 油猴脚本读取 `mirror.json`，访问国际通用地址时优先使用内地地址，随后按分流1、分流2回退。
 
-## 油猴脚本
+## Chrome扩展
 
 安装：
 
-`https://raw.githubusercontent.com/Carolove7/jmhub/main/jmhub.user.js`
+`https://raw.githubusercontent.com/Carolove7/jmhub/refs/heads/main/JMHub-Chrome.crx`
 
-安装一次即可。镜像地址变化后不需要重新安装脚本，脚本会读取最新的 `mirror.json`。
+扩展程序会读取最新的 `mirror.json`。
+
 
 ## GitHub Actions
 
