@@ -9,23 +9,15 @@
 // @icon         https://jmcomicmi.net/favicon.ico
 // @updateURL    https://g.blfrp.cn/https://raw.githubusercontent.com/Carolove7/jmhub/main/jmhub.user.js
 // @downloadURL  https://g.blfrp.cn/https://raw.githubusercontent.com/Carolove7/jmhub/main/jmhub.user.js
-//
-// 主站匹配
 // @match        https://18comic.vip/*
 // @match        https://*.18comic.vip/*
 // @match        https://18comic.ink/*
 // @match        https://*.18comic.ink/*
-//
-// 权限
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getValue
 // @grant        GM_setValue
-//
-// 跨域
 // @connect      g.blfrp.cn
 // @connect      raw.githubusercontent.com
-//
-// 启动时间
 // @run-at       document-start
 // ==/UserScript==
 
