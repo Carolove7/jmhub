@@ -4,6 +4,22 @@ const SOURCE_URL = "https://jmcomicmi.net/";
 const OUTPUT_FILE = "data/mirror.json";
 const REQUEST_TIMEOUT = 15000;
 
+// These are explicitly listed on the source page as Southeast Asia mirrors.
+// Never allow them to enter the global/China/fallback mirror lists.
+const SOUTHEAST_ASIA_HOSTS = new Set([
+  "jmcomic-zzz.one",
+  "jmcomic-zzz.org"
+]);
+
+function isBlockedHost(url) {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return SOUTHEAST_ASIA_HOSTS.has(host);
+  } catch {
+    return false;
+  }
+}
+
 async function fetchWithTimeout(url, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
@@ -35,7 +51,15 @@ function normalizeUrl(value) {
     url.hash = "";
     url.search = "";
     url.pathname = url.pathname === "/" ? "" : url.pathname.replace(/\/$/, "");
-    return url.origin + url.pathname;
+
+    const normalized = url.origin + url.pathname;
+
+    if (isBlockedHost(normalized)) {
+      console.warn(`[JMHub] Ignoring Southeast Asia mirror: ${normalized}`);
+      return null;
+    }
+
+    return normalized;
   } catch {
     return null;
   }
@@ -46,7 +70,7 @@ function unique(values) {
 }
 
 function extractUrls(text) {
-  // Handles both https://example.com and bare domains such as 18comic.vip.
+  // Handles both https://example.com and bare domains.
   const matches = text.match(/(?:https?:\/\/)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?:\/[^\s<>'"，。；：]*)?/gi) || [];
   return unique(matches.map(normalizeUrl));
 }
@@ -68,30 +92,34 @@ function classifyPageText(text) {
   let section = null;
 
   for (const line of lines) {
-    const compact = line.replace(/\s+/g, "").toLowerCase();
+    const compact = line
+      .replace(/[\s:：|｜]+/g, "")
+      .toLowerCase();
 
-    if (/^(国际通用网域|國際通用網域|国际通用网络|國際通用網路)$/.test(compact)) {
-      section = "global";
-      continue;
-    }
-
-    // This is a separate section and must NOT be treated as the main/global site.
+    // IMPORTANT: this section must terminate the previous section.
+    // Do this before extracting URLs from the line, because the source page
+    // may place the heading and its domains on the same rendered line.
     if (/^(东南亚路线建议使用|東南亞路線建議使用|东南亚路线|東南亞路線)/.test(compact)) {
       section = null;
       continue;
     }
 
-    if (/^(内地网域|內地網域|内地网络|內地網路)$/.test(compact)) {
+    if (/^(国际通用网域|國際通用網域|国际通用网络|國際通用網路)/.test(compact)) {
+      section = "global";
+      continue;
+    }
+
+    if (/^(内地网域|內地網域|内地网络|內地網路)/.test(compact)) {
       section = "china";
       continue;
     }
 
-    if (/^分流\s*1$/.test(compact)) {
+    if (/^分流1/.test(compact)) {
       section = "flow1";
       continue;
     }
 
-    if (/^分流\s*2$/.test(compact)) {
+    if (/^分流2/.test(compact)) {
       section = "flow2";
       continue;
     }
@@ -102,7 +130,7 @@ function classifyPageText(text) {
   }
 
   for (const key of Object.keys(result)) {
-    result[key] = unique(result[key]);
+    result[key] = unique(result[key]).filter((url) => !isBlockedHost(url));
   }
 
   return result;
@@ -148,8 +176,8 @@ async function main() {
 
   const html = await response.text();
 
-  // The page currently exposes the addresses as visible text rather than
-  // reliable <a href> elements, so parse the rendered text instead of links.
+  // The page exposes the addresses as visible text rather than reliable
+  // <a href> elements, so parse the rendered text instead of links.
   const pageText = html
     .replace(/<script[\s\S]*?<\/script>/gi, "\n")
     .replace(/<style[\s\S]*?<\/style>/gi, "\n")
