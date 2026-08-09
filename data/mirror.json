@@ -22,56 +22,56 @@
       "ok": false,
       "status": 403,
       "final_url": "https://18comic.vip/",
-      "latency_ms": 56
+      "latency_ms": 190
     },
     "https://18comic.ink/": {
       "ok": true,
       "status": 200,
       "final_url": "https://18comic.ink/albums/meiman",
-      "latency_ms": 305
+      "latency_ms": 512
     },
     "https://jm18c-dfg.cc/": {
       "ok": false,
       "status": 403,
       "final_url": "https://18comic.vip/",
-      "latency_ms": 167
+      "latency_ms": 382
     },
     "https://comic18j-jobi.club/": {
       "ok": false,
       "status": 403,
       "final_url": "https://18comic.vip/",
-      "latency_ms": 202
+      "latency_ms": 347
     },
     "https://jm18c-dfg.net/": {
       "ok": false,
       "status": 403,
       "final_url": "https://18comic.vip/",
-      "latency_ms": 141
+      "latency_ms": 342
     },
     "https://jm-88.cc/ZNPJam": {
       "ok": false,
       "status": 403,
       "final_url": "https://18comic.vip/stray/?utm_source=official_access_page",
-      "latency_ms": 574
+      "latency_ms": 980
     },
     "https://gmail.com/": {
       "ok": true,
       "status": 200,
-      "final_url": "https://accounts.google.com/v3/signin/identifier?continue=https://mail.google.com/mail/u/0/&emr=1&followup=https://mail.google.com/mail/u/0/&osid=1&passive=1209600&service=mail&flowName=WebLiteSignIn&flowEntry=ServiceLogin&dsh=S-935903571:1786281535424634",
-      "latency_ms": 385
+      "final_url": "https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fmail.google.com%2Fmail%2Fu%2F0%2F&dsh=S-1020035755%3A1786285243768412&emr=1&followup=https%3A%2F%2Fmail.google.com%2Fmail%2Fu%2F0%2F&osid=1&passive=1209600&service=mail&flowName=WebLiteSignIn&flowEntry=ServiceLogin&ifkv=Ac50bxswKU-bTyPKBYYSNmSbi2baMaEbrf3FlcnAyHkCkcYdBk6YDzyHk77XB6RHdAierHIVpfm7rA",
+      "latency_ms": 590
     },
     "https://discord.gg/V74p7HM": {
       "ok": true,
       "status": 200,
       "final_url": "https://discord.com/invite/V74p7HM",
-      "latency_ms": 333
+      "latency_ms": 471
     },
     "https://t.me/hcomic18": {
       "ok": true,
       "status": 200,
       "final_url": "https://t.me/hcomic18",
-      "latency_ms": 523
+      "latency_ms": 954
     }
   },
-  "updated_at": "2026-08-09T13:18:56.472Z"
+  "updated_at": "2026-08-09T14:20:45.486Z"
 }
