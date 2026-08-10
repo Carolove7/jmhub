@@ -5,6 +5,8 @@ const DATA_URLS = [
 const REFRESH_TTL = 30 * 60 * 1000;
 const ROUTE_TTL = 2 * 60 * 1000;
 const LEGACY_RULE_IDS = [1001, 1002, 1003, 1004];
+const BLOCKED_REDIRECT_HOSTS = new Set(["18comic.vip", "18comic.ink", "jmcomic-zzz.one"]);
+const BLOCKED_MIRROR_HOSTS = new Set(["comic18j-rita.cc", "jm18c-dfg.org", "comic18j-rita.me"]);
 
 async function clearLegacyRules() {
   const rules = await chrome.declarativeNetRequest.getDynamicRules();
@@ -13,8 +15,18 @@ async function clearLegacyRules() {
 }
 
 function candidateOrigins(data) {
-  const values = [...(data?.china || []), ...(data?.flow1 || []), ...(data?.flow2 || [])];
-  return [...new Set(values.flatMap((value) => {
+  const primary = [...(data?.china || []), ...(data?.flow1 || []), ...(data?.flow2 || [])];
+  const checked = data?.checked || {};
+  const usable = primary.filter((value) => {
+    try { if (BLOCKED_MIRROR_HOSTS.has(new URL(value).hostname)) return false; } catch { return false; }
+    const redirect = checked[value]?.redirect_to;
+    if (!redirect) return true;
+    try { return !BLOCKED_REDIRECT_HOSTS.has(new URL(redirect, value).hostname); } catch { return true; }
+  });
+  const fallback = usable.length ? usable : (data?.southeast_asia || []).filter((value) => {
+    try { return !BLOCKED_REDIRECT_HOSTS.has(new URL(value).hostname); } catch { return false; }
+  });
+  return [...new Set(fallback.flatMap((value) => {
     try { const url = new URL(value); return url.protocol === "https:" ? [url.origin] : []; }
     catch { return []; }
   }))];

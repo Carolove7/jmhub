@@ -35,12 +35,22 @@ def fetch(url):
             time.sleep(attempt + 1)
     raise last_error
 
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl): return None
+
 def probe(url):
     try:
         req = urllib.request.Request(url, headers={"User-Agent": UA}, method="HEAD")
         start = __import__("time").monotonic()
-        with urllib.request.urlopen(req, timeout=15) as r: status = r.status
-        return {"ok": 200 <= status < 400, "status": status, "latency_ms": round((__import__("time").monotonic()-start)*1000)}
+        opener = urllib.request.build_opener(NoRedirect)
+        with opener.open(req, timeout=15) as r: status = r.status; location = r.headers.get("Location")
+        result = {"ok": 200 <= status < 400, "status": status, "latency_ms": round((__import__("time").monotonic()-start)*1000)}
+        if location: result["redirect_to"] = location
+        return result
+    except urllib.error.HTTPError as e:
+        if 300 <= e.code < 400:
+            return {"ok": False, "status": e.code, "redirect_to": e.headers.get("Location")}
+        return {"ok": False, "status": e.code, "error": str(e)[:160]}
     except Exception as e: return {"ok": False, "error": str(e)[:160]}
 
 def main():

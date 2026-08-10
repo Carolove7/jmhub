@@ -20,16 +20,18 @@
   "checked": {
     "https://comic18j-rita.cc": {
       "ok": false,
-      "error": "HTTP Error 403: Forbidden"
+      "status": 301,
+      "redirect_to": "https://jmcomic-zzz.one/"
     },
     "https://jm18c-dfg.org": {
       "ok": false,
-      "error": "HTTP Error 403: Forbidden"
+      "status": 301,
+      "redirect_to": "https://jmcomic-zzz.one/"
     },
     "https://comic18j-rita.me": {
       "ok": false,
-      "error": "HTTP Error 403: Forbidden"
+      "error": "<urlopen error _ssl.c:1063: The handshake operation timed out>"
     }
   },
-  "updated_at": "2026-08-10T15:36:59Z"
+  "updated_at": "2026-08-10T15:58:18Z"
 }
