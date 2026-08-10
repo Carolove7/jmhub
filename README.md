@@ -7,7 +7,7 @@ JMHub 使用 GitHub Actions 定时抓取 [JM 镜像发布页](https://jmcomicmi.
 - 每小时第 17、47 分钟自动运行。
 - 支持在 Actions 页面手动运行 **Update mirror addresses**。
 - 检测镜像的 HTTP 状态及重定向目标。
-- 只有确认不会跳回主站或东南亚线路的地址才标记为 `safe: true`。
+- `safe` 和重定向检测结果只用于展示，不再阻止浏览器尝试发布页给出的中国区地址。
 - 数据没有变化时不会产生无意义提交。
 
 ## Chrome 扩展
@@ -18,8 +18,8 @@ JMHub 使用 GitHub Actions 定时抓取 [JM 镜像发布页](https://jmcomicmi.
 
 - 访问 `18comic.vip`、`18comic.ink` 及其子页面时转向安全的中国区镜像。
 - 优先通过 `g.blfrp.cn` 加速读取 GitHub 上的镜像 JSON，失败后回退到 GitHub Raw。
-- 在网络请求发出前硬拦截 `jmcomic-zzz.one` 和 `jmcomic-zzz.org`，避免进入东南亚线路。
-- 没有安全中国区镜像时显示本地提示页，不再使用旧缓存或失效的内置地址。
+- 始终按“内地网络 → 分流 1 → 分流 2”的顺序选择中国区地址。
+- 如果主站自动跳到 `jmcomic-zzz.one` 或 `jmcomic-zzz.org`，动态规则会再次将请求改回当前中国区镜像。
 - 弹窗显示镜像状态，并允许刷新、启停和手动选择安全线路。
 
 ## 安装扩展
@@ -36,7 +36,7 @@ JMHub 使用 GitHub Actions 定时抓取 [JM 镜像发布页](https://jmcomicmi.
 
 `data/mirror.json` 中的 `checked` 对象包含每条候选线路的检测结果：
 
-- `safe`: 是否允许扩展自动使用。
+- `safe`: Actions 环境判断是否可直接访问，仅供参考，不决定扩展是否尝试该地址。
 - `ok`: 是否获得成功响应。
 - `status`: HTTP 状态码。
 - `redirect_to`: 地址发生重定向时的目标。

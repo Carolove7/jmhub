@@ -7,27 +7,14 @@ const RULE_IDS = [2001, 2002, 2003, 2004];
 const OLD_RULE_IDS = [1001, 1002, 1003, 1004];
 const REFRESH_TTL = 30 * 60 * 1000;
 
-async function setSafetyRulesEnabled(enabled) {
-  try {
-    await chrome.declarativeNetRequest.updateEnabledRulesets({
-      enableRulesetIds: enabled ? ["block_southeast_asia"] : [],
-      disableRulesetIds: enabled ? [] : ["block_southeast_asia"],
-    });
-  } catch {
-    // Older Chrome versions may already have the requested state.
-  }
-}
-
-function safeOrigins(data) {
-  const checked = data?.checked || {};
+function candidateOrigins(data) {
   const values = [...(data?.china || []), ...(data?.flow1 || []), ...(data?.flow2 || [])];
-  const blocked = new Set(["18comic.vip", "18comic.ink", "jmcomic-zzz.one", "jmcomic-zzz.org"]);
+  const blocked = new Set(["18comic.vip", "18comic.ink"]);
   const seen = new Set();
   return values.flatMap((value) => {
     try {
       const parsed = new URL(value);
-      const result = checked[value];
-      if (parsed.protocol !== "https:" || blocked.has(parsed.hostname) || seen.has(parsed.origin) || result?.safe !== true) return [];
+      if (parsed.protocol !== "https:" || blocked.has(parsed.hostname) || seen.has(parsed.origin)) return [];
       seen.add(parsed.origin);
       return [parsed.origin];
     } catch {
@@ -36,20 +23,22 @@ function safeOrigins(data) {
   });
 }
 
-async function getTarget(data) {
+async function getTargets(data) {
   const { manualTarget } = await chrome.storage.local.get("manualTarget");
-  const choices = safeOrigins(data);
-  return manualTarget && choices.includes(manualTarget) ? manualTarget : choices[0] || null;
+  const choices = candidateOrigins(data);
+  const primary = manualTarget && choices.includes(manualTarget) ? manualTarget : choices[0] || null;
+  const recovery = choices.find((choice) => choice !== primary) || primary;
+  return { primary, recovery };
 }
 
 async function applyNetworkRules(data) {
   const { enabled } = await chrome.storage.local.get("enabled");
-  const target = await getTarget(data);
+  const { primary, recovery } = await getTargets(data);
   const addRules = enabled === false ? [] : SOURCE_HOSTS.map((host, index) => ({
     id: RULE_IDS[index],
     priority: 100,
-    action: target
-      ? { type: "redirect", redirect: { transform: { scheme: "https", host: new URL(target).hostname } } }
+    action: primary
+      ? { type: "redirect", redirect: { transform: { scheme: "https", host: new URL(index < 2 ? primary : recovery).hostname } } }
       : { type: "redirect", redirect: { extensionPath: "/unavailable.html" } },
     condition: { urlFilter: `||${host}^`, resourceTypes: ["main_frame"] },
   }));
@@ -59,8 +48,8 @@ async function applyNetworkRules(data) {
     return expected && JSON.stringify(rule.action) === JSON.stringify(expected.action);
   });
   if (!same) await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [...RULE_IDS, ...OLD_RULE_IDS], addRules });
-  await chrome.storage.local.set({ activeTarget: enabled === false ? null : target, routingAvailable: enabled !== false && Boolean(target) });
-  return target;
+  await chrome.storage.local.set({ activeTarget: enabled === false ? null : primary, recoveryTarget: enabled === false ? null : recovery, routingAvailable: enabled !== false && Boolean(primary) });
+  return primary;
 }
 
 async function bundledData() {
@@ -104,17 +93,15 @@ async function refresh(force = false) {
 
 async function bootstrap() {
   const { enabled } = await chrome.storage.local.get("enabled");
-  await setSafetyRulesEnabled(enabled !== false);
   const data = await loadCachedOrBundled();
   await applyNetworkRules(data);
   refresh(false);
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
-  await chrome.storage.local.remove(["data", "fetchedAt", "activeTarget", "manualTarget"]);
+  await chrome.storage.local.remove(["data", "fetchedAt", "activeTarget", "recoveryTarget", "manualTarget"]);
   await chrome.storage.session.set({ tabRoutes: {} });
   await chrome.storage.local.set({ enabled: true });
-  await setSafetyRulesEnabled(true);
   chrome.alarms.create("refresh-mirrors", { periodInMinutes: 30 });
   await bootstrap();
 });
@@ -126,7 +113,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message.type === "refresh") await refresh(true);
     if (message.type === "setEnabled") {
       await chrome.storage.local.set({ enabled: message.enabled });
-      await setSafetyRulesEnabled(message.enabled);
       await applyNetworkRules(await loadCachedOrBundled());
     }
     if (message.type === "selectTarget") {
@@ -135,7 +121,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       await chrome.storage.session.set({ tabRoutes: {} });
       await applyNetworkRules(await loadCachedOrBundled());
     }
-    sendResponse(await chrome.storage.local.get(["data", "enabled", "activeTarget", "manualTarget", "dataSource", "lastError", "fetchedAt", "routingAvailable"]));
+    sendResponse(await chrome.storage.local.get(["data", "enabled", "activeTarget", "recoveryTarget", "manualTarget", "dataSource", "lastError", "fetchedAt", "routingAvailable"]));
   })();
   return true;
 });

@@ -23,7 +23,7 @@ function formatTime(value) {
 
 function statusText(status) {
   if (status.safe === true) return "可用";
-  if (status.redirect_to) return "回跳";
+  if (status.redirect_to) return "服务器检测到重定向";
   if (status.status) return `HTTP ${status.status}`;
   return "不可用";
 }
@@ -39,7 +39,6 @@ function render(state) {
   const buttons = routeItems(state.data).map(({ label, origin, status }) => {
     const button = document.createElement("button");
     button.className = `route${state.activeTarget === origin ? " active" : ""}`;
-    button.disabled = status.safe !== true;
     button.innerHTML = '<span class="badge"></span><span class="url"></span><span class="check"></span>';
     button.querySelector(".badge").textContent = label;
     button.querySelector(".url").textContent = `${origin} · ${statusText(status)}`;
