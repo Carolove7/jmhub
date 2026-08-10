@@ -55,9 +55,12 @@ def probe(url):
 
 def main():
     parser = Page(); parser.feed(fetch(SOURCE).decode("utf-8", "replace"))
-    checked = {u: probe(u) for key in ("china", "flow1", "flow2") for u in parser.values[key]}
-    data = {"source": SOURCE, **parser.values, "checked": checked}
     previous = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
+    checked = {u: probe(u) for key in ("china", "flow1", "flow2") for u in parser.values[key]}
+    for url, result in checked.items():
+        old_redirect = previous.get("checked", {}).get(url, {}).get("redirect_to")
+        if old_redirect and not result.get("redirect_to"): result["redirect_to"] = old_redirect
+    data = {"source": SOURCE, **parser.values, "checked": checked}
     data["updated_at"] = previous.get("updated_at") if all(previous.get(k) == data.get(k) for k in data) else datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if not any(parser.values.values()): raise RuntimeError("No mirror URLs found on source page")
