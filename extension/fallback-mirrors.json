@@ -1,8 +1,14 @@
 {
+  "source": "https://jmcomicmi.net/",
   "global": ["https://18comic.vip", "https://18comic.ink"],
   "southeast_asia": ["https://jmcomic-zzz.one", "https://jmcomic-zzz.org"],
   "china": ["https://comic18j-rita.cc"],
   "flow1": ["https://jm18c-dfg.org"],
   "flow2": ["https://comic18j-rita.me"],
-  "updated_at": "2026-08-10T14:14:37Z"
+  "checked": {
+    "https://comic18j-rita.cc": {"safe": false, "status": 301, "redirect_to": "https://jmcomic-zzz.one/"},
+    "https://jm18c-dfg.org": {"safe": false, "status": 301, "redirect_to": "https://jmcomic-zzz.one/"},
+    "https://comic18j-rita.me": {"safe": false, "status": 301, "redirect_to": "https://jmcomic-zzz.one/"}
+  },
+  "updated_at": "2026-08-10T15:58:18Z"
 }

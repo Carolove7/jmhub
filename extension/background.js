@@ -2,29 +2,65 @@ const DATA_URLS = [
   "https://g.blfrp.cn/https://raw.githubusercontent.com/Carolove7/jmhub/main/data/mirror.json",
   "https://raw.githubusercontent.com/Carolove7/jmhub/main/data/mirror.json",
 ];
+const SOURCE_HOSTS = ["18comic.vip", "18comic.ink", "jmcomic-zzz.one", "jmcomic-zzz.org"];
+const RULE_IDS = [2001, 2002, 2003, 2004];
+const OLD_RULE_IDS = [1001, 1002, 1003, 1004];
 const REFRESH_TTL = 30 * 60 * 1000;
-const ROUTE_TTL = 2 * 60 * 1000;
-const LEGACY_RULE_IDS = [1001, 1002, 1003, 1004];
-const BLOCKED_REDIRECT_HOSTS = new Set(["18comic.vip", "18comic.ink", "jmcomic-zzz.one"]);
 
-async function clearLegacyRules() {
-  const rules = await chrome.declarativeNetRequest.getDynamicRules();
-  const ids = rules.filter((rule) => LEGACY_RULE_IDS.includes(rule.id)).map((rule) => rule.id);
-  if (ids.length) await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: ids });
+async function setSafetyRulesEnabled(enabled) {
+  try {
+    await chrome.declarativeNetRequest.updateEnabledRulesets({
+      enableRulesetIds: enabled ? ["block_southeast_asia"] : [],
+      disableRulesetIds: enabled ? [] : ["block_southeast_asia"],
+    });
+  } catch {
+    // Older Chrome versions may already have the requested state.
+  }
 }
 
-function candidateOrigins(data) {
-  const primary = [...(data?.china || []), ...(data?.flow1 || []), ...(data?.flow2 || [])];
+function safeOrigins(data) {
   const checked = data?.checked || {};
-  const usable = primary.filter((value) => {
-    const redirect = checked[value]?.redirect_to;
-    if (!redirect) return true;
-    try { return !BLOCKED_REDIRECT_HOSTS.has(new URL(redirect, value).hostname); } catch { return true; }
+  const values = [...(data?.china || []), ...(data?.flow1 || []), ...(data?.flow2 || [])];
+  const blocked = new Set(["18comic.vip", "18comic.ink", "jmcomic-zzz.one", "jmcomic-zzz.org"]);
+  const seen = new Set();
+  return values.flatMap((value) => {
+    try {
+      const parsed = new URL(value);
+      const result = checked[value];
+      if (parsed.protocol !== "https:" || blocked.has(parsed.hostname) || seen.has(parsed.origin) || result?.safe !== true) return [];
+      seen.add(parsed.origin);
+      return [parsed.origin];
+    } catch {
+      return [];
+    }
   });
-  return [...new Set(usable.flatMap((value) => {
-    try { const url = new URL(value); return url.protocol === "https:" ? [url.origin] : []; }
-    catch { return []; }
-  }))];
+}
+
+async function getTarget(data) {
+  const { manualTarget } = await chrome.storage.local.get("manualTarget");
+  const choices = safeOrigins(data);
+  return manualTarget && choices.includes(manualTarget) ? manualTarget : choices[0] || null;
+}
+
+async function applyNetworkRules(data) {
+  const { enabled } = await chrome.storage.local.get("enabled");
+  const target = await getTarget(data);
+  const addRules = enabled === false ? [] : SOURCE_HOSTS.map((host, index) => ({
+    id: RULE_IDS[index],
+    priority: 100,
+    action: target
+      ? { type: "redirect", redirect: { transform: { scheme: "https", host: new URL(target).hostname } } }
+      : { type: "redirect", redirect: { extensionPath: "/unavailable.html" } },
+    condition: { urlFilter: `||${host}^`, resourceTypes: ["main_frame"] },
+  }));
+  const existing = await chrome.declarativeNetRequest.getDynamicRules();
+  const same = existing.length === addRules.length && existing.every((rule) => {
+    const expected = addRules.find((item) => item.id === rule.id);
+    return expected && JSON.stringify(rule.action) === JSON.stringify(expected.action);
+  });
+  if (!same) await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [...RULE_IDS, ...OLD_RULE_IDS], addRules });
+  await chrome.storage.local.set({ activeTarget: enabled === false ? null : target, routingAvailable: enabled !== false && Boolean(target) });
+  return target;
 }
 
 async function bundledData() {
@@ -32,9 +68,9 @@ async function bundledData() {
   return response.json();
 }
 
-async function ensureData() {
-  const store = await chrome.storage.local.get("data");
-  if (candidateOrigins(store.data).length) return store.data;
+async function loadCachedOrBundled() {
+  const stored = await chrome.storage.local.get("data");
+  if (stored.data) return stored.data;
   const data = await bundledData();
   await chrome.storage.local.set({ data, dataSource: "内置数据" });
   return data;
@@ -42,89 +78,66 @@ async function ensureData() {
 
 async function refresh(force = false) {
   const cached = await chrome.storage.local.get(["data", "fetchedAt"]);
-  if (!force && cached.data && cached.fetchedAt && Date.now() - cached.fetchedAt < REFRESH_TTL) return cached.data;
+  if (!force && cached.data && cached.fetchedAt && Date.now() - cached.fetchedAt < REFRESH_TTL) {
+    await applyNetworkRules(cached.data);
+    return cached.data;
+  }
   let lastError = "无法获取镜像数据";
   for (const url of DATA_URLS) {
     try {
       const response = await fetch(`${url}?t=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      if (!candidateOrigins(data).length) throw new Error("数据中没有有效镜像");
-      if (cached.data?.updated_at !== data.updated_at) await chrome.storage.session.set({ tabRoutes: {} });
+      if (!data || !Array.isArray(data.china) || !Array.isArray(data.flow1) || !Array.isArray(data.flow2)) throw new Error("镜像 JSON 格式无效");
       await chrome.storage.local.set({ data, dataSource: url.includes("g.blfrp.cn") ? "加速线路" : "GitHub Raw", lastError: null, fetchedAt: Date.now() });
+      await chrome.storage.session.set({ tabRoutes: {} });
+      await applyNetworkRules(data);
       return data;
-    } catch (error) { lastError = error instanceof Error ? error.message : String(error); }
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+    }
   }
   await chrome.storage.local.set({ lastError });
+  await applyNetworkRules(cached.data || await loadCachedOrBundled());
   return cached.data || null;
 }
 
-async function resolveRedirect(tabId, originalUrl) {
-  const store = await chrome.storage.local.get(["enabled", "manualTarget"]);
-  if (store.enabled === false) return null;
-  const data = await ensureData();
-  const choices = candidateOrigins(data);
-  const session = await chrome.storage.session.get("tabRoutes");
-  const tabRoutes = session.tabRoutes || {};
-  let route = tabRoutes[tabId] || { attempted: [], lastTarget: null, updatedAt: 0 };
-  if (Date.now() - route.updatedAt > ROUTE_TTL) route = { attempted: [], lastTarget: null, updatedAt: 0 };
-  if (route.lastTarget && !route.attempted.includes(route.lastTarget)) route.attempted.push(route.lastTarget);
-  const preferred = store.manualTarget && choices.includes(store.manualTarget) ? store.manualTarget : null;
-  const target = [preferred, ...choices].find((item) => item && !route.attempted.includes(item));
-  if (!target) {
-    delete tabRoutes[tabId];
-    await chrome.storage.session.set({ tabRoutes });
-    await chrome.storage.local.set({ lastError: "当前中国区镜像均发生回跳，已停止本次自动跳转" });
-    return chrome.runtime.getURL("unavailable.html");
-  }
-  route = { ...route, lastTarget: target, updatedAt: Date.now() };
-  tabRoutes[tabId] = route;
-  await chrome.storage.session.set({ tabRoutes });
-  await chrome.storage.local.set({ activeTarget: target, lastError: null });
-  const source = new URL(originalUrl);
-  return new URL(source.pathname + source.search + source.hash, target).href;
-}
-
-async function clearCompletedRoute(tabId, url) {
-  const data = await ensureData();
-  if (!candidateOrigins(data).some((origin) => new URL(origin).hostname === new URL(url).hostname)) return;
-  const session = await chrome.storage.session.get("tabRoutes");
-  const tabRoutes = session.tabRoutes || {};
-  delete tabRoutes[tabId];
-  await chrome.storage.session.set({ tabRoutes });
+async function bootstrap() {
+  const { enabled } = await chrome.storage.local.get("enabled");
+  await setSafetyRulesEnabled(enabled !== false);
+  const data = await loadCachedOrBundled();
+  await applyNetworkRules(data);
+  refresh(false);
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
-  await clearLegacyRules();
-  const { enabled } = await chrome.storage.local.get("enabled");
-  if (enabled === undefined) await chrome.storage.local.set({ enabled: true });
+  await chrome.storage.local.remove(["data", "fetchedAt", "activeTarget", "manualTarget"]);
+  await chrome.storage.session.set({ tabRoutes: {} });
+  await chrome.storage.local.set({ enabled: true });
+  await setSafetyRulesEnabled(true);
   chrome.alarms.create("refresh-mirrors", { periodInMinutes: 30 });
-  await ensureData();
-  refresh(false);
+  await bootstrap();
 });
-chrome.runtime.onStartup.addListener(() => refresh(false));
+chrome.runtime.onStartup.addListener(bootstrap);
 chrome.alarms.onAlarm.addListener((alarm) => alarm.name === "refresh-mirrors" && refresh(true));
-chrome.webNavigation.onCompleted.addListener((details) => details.frameId === 0 && clearCompletedRoute(details.tabId, details.url));
-chrome.tabs.onRemoved.addListener(async (tabId) => {
-  const session = await chrome.storage.session.get("tabRoutes");
-  const tabRoutes = session.tabRoutes || {}; delete tabRoutes[tabId];
-  await chrome.storage.session.set({ tabRoutes });
-});
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
-    if (message.type === "resolveRedirect") sendResponse({ url: await resolveRedirect(sender.tab.id, message.url) });
-    else {
-      if (message.type === "refresh") await refresh(true);
-      if (message.type === "setEnabled") await chrome.storage.local.set({ enabled: message.enabled });
-      if (message.type === "selectTarget") {
-        if (message.target) await chrome.storage.local.set({ manualTarget: message.target });
-        else await chrome.storage.local.remove("manualTarget");
-        await chrome.storage.session.set({ tabRoutes: {} });
-      }
-      sendResponse(await chrome.storage.local.get(["data", "enabled", "activeTarget", "manualTarget", "dataSource", "lastError", "fetchedAt"]));
+    if (message.type === "refresh") await refresh(true);
+    if (message.type === "setEnabled") {
+      await chrome.storage.local.set({ enabled: message.enabled });
+      await setSafetyRulesEnabled(message.enabled);
+      await applyNetworkRules(await loadCachedOrBundled());
     }
+    if (message.type === "selectTarget") {
+      if (message.target) await chrome.storage.local.set({ manualTarget: message.target });
+      else await chrome.storage.local.remove("manualTarget");
+      await chrome.storage.session.set({ tabRoutes: {} });
+      await applyNetworkRules(await loadCachedOrBundled());
+    }
+    sendResponse(await chrome.storage.local.get(["data", "enabled", "activeTarget", "manualTarget", "dataSource", "lastError", "fetchedAt", "routingAvailable"]));
   })();
   return true;
 });
 
-clearLegacyRules();
+bootstrap();

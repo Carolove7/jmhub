@@ -1,31 +1,42 @@
 # JMHub
 
-自动抓取 [jmcomicmi.net](https://jmcomicmi.net/) 发布页中的「内地网络、分流1、分流2」地址，并保存到 [`data/mirror.json`](data/mirror.json)。GitHub Actions 每小时第 17、47 分钟运行，也支持手动运行。
+JMHub 使用 GitHub Actions 定时抓取 [JM 镜像发布页](https://jmcomicmi.net/)，提取“内地网络、分流 1、分流 2”地址并保存到 [`data/mirror.json`](data/mirror.json)。
+
+## GitHub Actions
+
+- 每小时第 17、47 分钟自动运行。
+- 支持在 Actions 页面手动运行 **Update mirror addresses**。
+- 检测镜像的 HTTP 状态及重定向目标。
+- 只有确认不会跳回主站或东南亚线路的地址才标记为 `safe: true`。
+- 数据没有变化时不会产生无意义提交。
 
 ## Chrome 扩展
 
-`extension/` 是 Manifest V3 扩展。加载该文件夹后，访问 `https://18comic.vip`、`https://18comic.ink` 及其子页面会保留原路径和查询参数，自动跳转到 JSON 中按「内地网络 → 分流1 → 分流2」顺序排列的首个镜像。
+扩展位于 [`extension/`](extension/)，使用 Manifest V3。
 
-扩展使用 Chrome `declarativeNetRequest` 动态规则，在请求主站之前同步替换域名。因此即使主站会依据 IP 自动分配东南亚线路，也不会先连接主站或被它二次分流。扩展同时内置最近一次镜像作为首次启动兜底，并支持在弹窗中手动选择中国区线路。
+主要功能：
 
-扩展优先通过以下加速地址读取数据：
+- 访问 `18comic.vip`、`18comic.ink` 及其子页面时转向安全的中国区镜像。
+- 优先通过 `g.blfrp.cn` 加速读取 GitHub 上的镜像 JSON，失败后回退到 GitHub Raw。
+- 在网络请求发出前硬拦截 `jmcomic-zzz.one` 和 `jmcomic-zzz.org`，避免进入东南亚线路。
+- 没有安全中国区镜像时显示本地提示页，不再使用旧缓存或失效的内置地址。
+- 弹窗显示镜像状态，并允许刷新、启停和手动选择安全线路。
 
-`https://g.blfrp.cn/https://raw.githubusercontent.com/Carolove7/jmhub/main/data/mirror.json`
+## 安装扩展
 
-如果加速地址失败，则回退到 GitHub Raw。
+1. 下载或克隆本仓库。
+2. 打开 `chrome://extensions/`。
+3. 启用“开发者模式”。
+4. 点击“加载已解压的扩展程序”。
+5. 选择仓库中的 `extension` 文件夹。
 
-### 安装扩展
+更新测试版扩展时，建议先删除旧版本，再重新加载最新的 `extension` 文件夹，避免 Chrome 保留旧 service worker 或动态规则。
 
-1. 打开 `chrome://extensions/`。
-2. 启用“开发者模式”。
-3. 点击“加载已解压的扩展程序”。
-4. 选择本仓库的 `extension` 文件夹。
+## 数据格式
 
-### 手动更新
+`data/mirror.json` 中的 `checked` 对象包含每条候选线路的检测结果：
 
-在仓库 Actions 页面手动运行 **Update mirror addresses**。工作流需要 `contents: write` 权限。
-
-
-### ��·����˵��
-
-��չʹ�ö�̬����ת�����򸲸���վ�ͷ���ҳ�ṩ�Ķ��������������� jmcomic-zzz.one���������������������д���й������񣬱�����վ�� IP ����������
+- `safe`: 是否允许扩展自动使用。
+- `ok`: 是否获得成功响应。
+- `status`: HTTP 状态码。
+- `redirect_to`: 地址发生重定向时的目标。

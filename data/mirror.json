@@ -19,20 +19,23 @@
   ],
   "checked": {
     "https://comic18j-rita.cc": {
+      "safe": false,
       "ok": false,
       "status": 301,
-      "redirect_to": "https://18comic.vip/"
+      "redirect_to": "https://jmcomic-zzz.one/"
     },
     "https://jm18c-dfg.org": {
+      "safe": false,
       "ok": false,
       "status": 301,
-      "redirect_to": "https://18comic.vip/"
+      "redirect_to": "https://jmcomic-zzz.one/"
     },
     "https://comic18j-rita.me": {
+      "safe": false,
       "ok": false,
       "status": 301,
-      "redirect_to": "https://18comic.vip/"
+      "redirect_to": "https://jmcomic-zzz.one/"
     }
   },
-  "updated_at": "2026-08-10T16:31:15Z"
+  "updated_at": "2026-08-10T16:33:39Z"
 }

@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "priority": 1000,
+    "action": {
+      "type": "redirect",
+      "redirect": { "extensionPath": "/unavailable.html" }
+    },
+    "condition": {
+      "requestDomains": ["jmcomic-zzz.one", "jmcomic-zzz.org"],
+      "resourceTypes": ["main_frame"]
+    }
+  }
+]
