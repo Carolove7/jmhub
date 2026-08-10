@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "JMHub 中国区镜像直达",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "在请求发出前将 18comic.vip 和 18comic.ink 同步改写为最新中国区镜像。",
   "permissions": ["storage", "alarms", "webNavigation", "tabs", "declarativeNetRequest"],
   "host_permissions": ["https://*/*", "http://18comic.vip/*", "http://18comic.ink/*"],
