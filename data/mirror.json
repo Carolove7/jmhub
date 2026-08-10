@@ -1,0 +1,27 @@
+{
+  "source": "https://jmcomicmi.net/",
+  "china": [
+    "https://comic18j-rita.cc"
+  ],
+  "flow1": [
+    "https://jm18c-dfg.org"
+  ],
+  "flow2": [
+    "https://comic18j-rita.me"
+  ],
+  "checked": {
+    "https://comic18j-rita.cc": {
+      "ok": false,
+      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
+    },
+    "https://jm18c-dfg.org": {
+      "ok": false,
+      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
+    },
+    "https://comic18j-rita.me": {
+      "ok": false,
+      "error": "HTTP Error 403: Forbidden"
+    }
+  },
+  "updated_at": "2026-08-10T14:14:37Z"
+}

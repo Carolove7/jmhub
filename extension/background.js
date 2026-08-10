@@ -1,0 +1,8 @@
+const URLS = ["https://g.blfrp.cn/https://raw.githubusercontent.com/Carolove7/jmhub/main/data/mirror.json", "https://raw.githubusercontent.com/Carolove7/jmhub/main/data/mirror.json"];
+const HOSTS = new Set(["18comic.vip", "18comic.ink"]);
+async function refresh() { for (const u of URLS) try { const r=await fetch(u+"?t="+Date.now(),{cache:"no-store"}); if(!r.ok) throw Error(r.status); const data=await r.json(); await chrome.storage.local.set({data,lastError:null,fetchedAt:Date.now()}); return data; } catch(e) { await chrome.storage.local.set({lastError:String(e)}); } }
+function candidates(d) { return [...(d?.china||[]), ...(d?.flow1||[]), ...(d?.flow2||[])].map(x=>{try{return new URL(x).origin}catch{return null}}).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i); }
+chrome.webNavigation.onBeforeNavigate.addListener(async ({tabId,frameId,url})=>{ if(frameId!==0) return; const u=new URL(url); if(!HOSTS.has(u.hostname)) return; const s=await chrome.storage.local.get(["data","enabled"]); if(s.enabled===false) return; const d=s.data||await refresh(); const target=candidates(d)[0]; if(target) chrome.tabs.update(tabId,{url:new URL(u.pathname+u.search+u.hash,target).href}); },{url:[{hostEquals:"18comic.vip",schemes:["https"]},{hostEquals:"18comic.ink",schemes:["https"]}]});
+chrome.runtime.onInstalled.addListener(()=>{chrome.storage.local.set({enabled:true}); refresh(); chrome.alarms.create("refresh",{periodInMinutes:30});});
+chrome.runtime.onStartup.addListener(refresh); chrome.alarms.onAlarm.addListener(a=>a.name==="refresh"&&refresh());
+chrome.runtime.onMessage.addListener((m,_s,send)=>{if(m.type==="refresh") refresh().then(data=>send({data})); if(m.type==="state") chrome.storage.local.get(["data","enabled","lastError"]).then(send); return true;});
