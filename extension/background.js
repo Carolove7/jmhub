@@ -2,8 +2,8 @@ const DATA_URLS = [
   "https://g.blfrp.cn/https://raw.githubusercontent.com/Carolove7/jmhub/main/data/mirror.json",
   "https://raw.githubusercontent.com/Carolove7/jmhub/main/data/mirror.json",
 ];
-const RULE_IDS = [1001, 1002];
-const SOURCE_HOSTS = ["18comic.vip", "18comic.ink"];
+const RULE_IDS = [1001, 1002, 1003, 1004];
+const SOURCE_HOSTS = ["18comic.vip", "18comic.ink", "jmcomic-zzz.one", "jmcomic-zzz.org"];
 
 function candidateOrigins(data) {
   const values = [...(data?.china || []), ...(data?.flow1 || []), ...(data?.flow2 || [])];
@@ -31,11 +31,11 @@ async function installRedirectRules(data) {
   const target = enabled === false ? null : await selectedTarget(data);
   const addRules = target
     ? SOURCE_HOSTS.map((host, index) => ({
-        id: RULE_IDS[index],
+        id: RULE_IDS[0] + index,
         priority: 100,
-        action: { type: "redirect", redirect: { regexSubstitution: `${target}\\1` } },
+        action: { type: "redirect", redirect: { transform: { scheme: "https", host: new URL(target).hostname } } },
         condition: {
-          regexFilter: `^https?://${host.replaceAll(".", "\\.")}(/.*)?$`,
+          urlFilter: `||${host}^`,
           resourceTypes: ["main_frame"],
         },
       }))
