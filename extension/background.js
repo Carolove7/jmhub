@@ -23,13 +23,14 @@ function candidateOrigins(data) {
 
 async function selectedTarget(data) {
   const { manualTarget } = await chrome.storage.local.get("manualTarget");
-  const choices = candidateOrigins(data);
+  const { badTargets = [] } = await chrome.storage.session.get("badTargets");
+  const choices = candidateOrigins(data).filter((target) => !badTargets.includes(target));
   return manualTarget && choices.includes(manualTarget) ? manualTarget : choices[0] || null;
 }
 
-async function installRedirectRules(data) {
+async function installRedirectRules(data, forcedTarget = undefined) {
   const { enabled } = await chrome.storage.local.get("enabled");
-  const target = enabled === false ? null : await selectedTarget(data);
+  const target = enabled === false ? null : forcedTarget === undefined ? await selectedTarget(data) : forcedTarget;
   const existing = await chrome.declarativeNetRequest.getDynamicRules();
   const targetHost = target ? new URL(target).hostname : null;
   const rulesCurrent = targetHost
@@ -80,6 +81,8 @@ async function refresh(force = false) {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       if (!candidateOrigins(data).length) throw new Error("数据中没有有效镜像");
+      const previous = await chrome.storage.local.get("data");
+      if (previous.data?.updated_at !== data.updated_at) await chrome.storage.session.set({ badTargets: [] });
       await chrome.storage.local.set({ data, dataSource: url.includes("g.blfrp.cn") ? "加速线路" : "GitHub Raw", lastError: null, fetchedAt: Date.now() });
       await installRedirectRules(data);
       return data;
@@ -105,6 +108,25 @@ chrome.runtime.onInstalled.addListener(async () => {
 });
 chrome.runtime.onStartup.addListener(bootstrap);
 chrome.alarms.onAlarm.addListener((alarm) => alarm.name === "refresh-mirrors" && refresh(true));
+chrome.webNavigation.onErrorOccurred.addListener(async (details) => {
+  if (details.frameId !== 0 || !details.error.includes("ERR_TOO_MANY_REDIRECTS")) return;
+  const data = await ensureData();
+  const { activeTarget } = await chrome.storage.local.get("activeTarget");
+  const session = await chrome.storage.session.get("badTargets");
+  const badTargets = new Set(session.badTargets || []);
+  if (activeTarget) badTargets.add(activeTarget);
+  await chrome.storage.session.set({ badTargets: [...badTargets] });
+  const next = candidateOrigins(data).find((target) => !badTargets.has(target));
+  if (!next) {
+    await installRedirectRules(data, null);
+    await chrome.storage.local.set({ lastError: "所有镜像均发生重定向循环，已暂停自动跳转" });
+    return;
+  }
+  await installRedirectRules(data, next);
+  const failed = new URL(details.url);
+  const retryUrl = new URL(failed.pathname + failed.search + failed.hash, next).href;
+  await chrome.tabs.update(details.tabId, { url: retryUrl });
+});
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
     if (message.type === "refresh") await refresh(true);
@@ -113,8 +135,14 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       await installRedirectRules(await ensureData());
     }
     if (message.type === "selectTarget") {
-      if (message.target) await chrome.storage.local.set({ manualTarget: message.target });
-      else await chrome.storage.local.remove("manualTarget");
+      if (message.target) {
+        await chrome.storage.local.set({ manualTarget: message.target });
+        const session = await chrome.storage.session.get("badTargets");
+        await chrome.storage.session.set({ badTargets: (session.badTargets || []).filter((target) => target !== message.target) });
+      } else {
+        await chrome.storage.local.remove("manualTarget");
+        await chrome.storage.session.set({ badTargets: [] });
+      }
       await installRedirectRules(await ensureData());
     }
     const state = await chrome.storage.local.get(["data", "enabled", "activeTarget", "manualTarget", "dataSource", "lastError", "fetchedAt"]);
