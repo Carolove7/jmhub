@@ -20,7 +20,7 @@
   "checked": {
     "https://comic18j-rita.cc": {
       "ok": false,
-      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
+      "error": "HTTP Error 403: Forbidden"
     },
     "https://jm18c-dfg.org": {
       "ok": false,
@@ -28,8 +28,8 @@
     },
     "https://comic18j-rita.me": {
       "ok": false,
-      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
+      "error": "HTTP Error 403: Forbidden"
     }
   },
-  "updated_at": "2026-08-10T15:32:07Z"
+  "updated_at": "2026-08-10T15:36:59Z"
 }
