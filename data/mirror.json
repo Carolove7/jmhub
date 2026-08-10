@@ -18,35 +18,18 @@
     "https://comic18j-rita.me"
   ],
   "checked": {
-    "https://18comic.vip": {
-      "ok": false,
-      "error": "Remote end closed connection without response"
-    },
-    "https://18comic.ink": {
-      "ok": true,
-      "status": 200,
-      "latency_ms": 4504
-    },
-    "https://jmcomic-zzz.one": {
-      "ok": false,
-      "error": "HTTP Error 403: Forbidden"
-    },
-    "https://jmcomic-zzz.org": {
-      "ok": false,
-      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
-    },
     "https://comic18j-rita.cc": {
       "ok": false,
       "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
     },
     "https://jm18c-dfg.org": {
       "ok": false,
-      "error": "Remote end closed connection without response"
+      "error": "HTTP Error 403: Forbidden"
     },
     "https://comic18j-rita.me": {
       "ok": false,
       "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
     }
   },
-  "updated_at": "2026-08-10T15:17:56Z"
+  "updated_at": "2026-08-10T15:32:07Z"
 }

@@ -4,6 +4,7 @@ const DATA_URLS = [
 ];
 const RULE_IDS = [1001, 1002, 1003, 1004];
 const SOURCE_HOSTS = ["18comic.vip", "18comic.ink", "jmcomic-zzz.one", "jmcomic-zzz.org"];
+const REFRESH_TTL = 30 * 60 * 1000;
 
 function candidateOrigins(data) {
   const values = [...(data?.china || []), ...(data?.flow1 || []), ...(data?.flow2 || [])];
@@ -29,6 +30,15 @@ async function selectedTarget(data) {
 async function installRedirectRules(data) {
   const { enabled } = await chrome.storage.local.get("enabled");
   const target = enabled === false ? null : await selectedTarget(data);
+  const existing = await chrome.declarativeNetRequest.getDynamicRules();
+  const targetHost = target ? new URL(target).hostname : null;
+  const rulesCurrent = targetHost
+    ? existing.length === SOURCE_HOSTS.length && existing.every((rule) => rule.action.redirect?.transform?.host === targetHost)
+    : existing.length === 0;
+  if (rulesCurrent) {
+    await chrome.storage.local.set({ activeTarget: target });
+    return target;
+  }
   const addRules = target
     ? SOURCE_HOSTS.map((host, index) => ({
         id: RULE_IDS[0] + index,
@@ -58,7 +68,11 @@ async function ensureData() {
   return data;
 }
 
-async function refresh() {
+async function refresh(force = false) {
+  if (!force) {
+    const cached = await chrome.storage.local.get(["data", "fetchedAt"]);
+    if (cached.data && cached.fetchedAt && Date.now() - cached.fetchedAt < REFRESH_TTL) return cached.data;
+  }
   let lastError = "无法获取镜像数据";
   for (const url of DATA_URLS) {
     try {
@@ -80,7 +94,7 @@ async function refresh() {
 async function bootstrap() {
   const data = await ensureData();
   await installRedirectRules(data);
-  refresh();
+  refresh(false);
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
@@ -90,10 +104,10 @@ chrome.runtime.onInstalled.addListener(async () => {
   await bootstrap();
 });
 chrome.runtime.onStartup.addListener(bootstrap);
-chrome.alarms.onAlarm.addListener((alarm) => alarm.name === "refresh-mirrors" && refresh());
+chrome.alarms.onAlarm.addListener((alarm) => alarm.name === "refresh-mirrors" && refresh(true));
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
-    if (message.type === "refresh") await refresh();
+    if (message.type === "refresh") await refresh(true);
     if (message.type === "setEnabled") {
       await chrome.storage.local.set({ enabled: message.enabled });
       await installRedirectRules(await ensureData());
