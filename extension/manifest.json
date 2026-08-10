@@ -1,11 +1,21 @@
 {
   "manifest_version": 3,
   "name": "JMHub 中国区镜像直达",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "在请求发出前将 18comic.vip 和 18comic.ink 同步改写为最新中国区镜像。",
-  "permissions": ["storage", "alarms", "declarativeNetRequest", "webNavigation", "tabs"],
+  "permissions": ["storage", "alarms", "webNavigation", "tabs", "declarativeNetRequest"],
   "host_permissions": ["https://*/*", "http://18comic.vip/*", "http://18comic.ink/*"],
   "background": { "service_worker": "background.js" },
+  "content_scripts": [{
+    "matches": [
+      "*://18comic.vip/*",
+      "*://18comic.ink/*",
+      "*://jmcomic-zzz.one/*",
+      "*://jmcomic-zzz.org/*"
+    ],
+    "js": ["redirect.js"],
+    "run_at": "document_start"
+  }],
   "action": {
     "default_popup": "popup.html",
     "default_title": "JMHub 中国区镜像直达"
