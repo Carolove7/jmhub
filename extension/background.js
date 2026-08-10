@@ -2,7 +2,9 @@ const DATA_URLS = [
   "https://g.blfrp.cn/https://raw.githubusercontent.com/Carolove7/jmhub/main/data/mirror.json",
   "https://raw.githubusercontent.com/Carolove7/jmhub/main/data/mirror.json",
 ];
-const SOURCE_HOSTS = ["18comic.vip", "18comic.ink", "jmcomic-zzz.one", "jmcomic-zzz.org"];
+const MAIN_HOSTS = ["18comic.vip", "18comic.ink"];
+const SOUTHEAST_ASIA_HOSTS = ["jmcomic-zzz.one", "jmcomic-zzz.org"];
+const SOURCE_HOSTS = [...MAIN_HOSTS, ...SOUTHEAST_ASIA_HOSTS];
 const RULE_IDS = [2001, 2002, 2003, 2004];
 const OLD_RULE_IDS = [1001, 1002, 1003, 1004];
 const REFRESH_TTL = 30 * 60 * 1000;
@@ -23,22 +25,20 @@ function candidateOrigins(data) {
   });
 }
 
-async function getTargets(data) {
+async function getTarget(data) {
   const { manualTarget } = await chrome.storage.local.get("manualTarget");
   const choices = candidateOrigins(data);
-  const primary = manualTarget && choices.includes(manualTarget) ? manualTarget : choices[0] || null;
-  const recovery = choices.find((choice) => choice !== primary) || primary;
-  return { primary, recovery };
+  return manualTarget && choices.includes(manualTarget) ? manualTarget : choices[0] || null;
 }
 
 async function applyNetworkRules(data) {
   const { enabled } = await chrome.storage.local.get("enabled");
-  const { primary, recovery } = await getTargets(data);
+  const target = await getTarget(data);
   const addRules = enabled === false ? [] : SOURCE_HOSTS.map((host, index) => ({
     id: RULE_IDS[index],
     priority: 100,
-    action: primary
-      ? { type: "redirect", redirect: { transform: { scheme: "https", host: new URL(index < 2 ? primary : recovery).hostname } } }
+    action: target
+      ? { type: "redirect", redirect: { transform: { scheme: "https", host: new URL(target).hostname } } }
       : { type: "redirect", redirect: { extensionPath: "/unavailable.html" } },
     condition: { urlFilter: `||${host}^`, resourceTypes: ["main_frame"] },
   }));
@@ -48,8 +48,8 @@ async function applyNetworkRules(data) {
     return expected && JSON.stringify(rule.action) === JSON.stringify(expected.action);
   });
   if (!same) await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [...RULE_IDS, ...OLD_RULE_IDS], addRules });
-  await chrome.storage.local.set({ activeTarget: enabled === false ? null : primary, recoveryTarget: enabled === false ? null : recovery, routingAvailable: enabled !== false && Boolean(primary) });
-  return primary;
+  await chrome.storage.local.set({ activeTarget: enabled === false ? null : target, routingAvailable: enabled !== false && Boolean(target) });
+  return target;
 }
 
 async function bundledData() {
@@ -99,7 +99,7 @@ async function bootstrap() {
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
-  await chrome.storage.local.remove(["data", "fetchedAt", "activeTarget", "recoveryTarget", "manualTarget"]);
+  await chrome.storage.local.remove(["data", "fetchedAt", "activeTarget", "manualTarget"]);
   await chrome.storage.session.set({ tabRoutes: {} });
   await chrome.storage.local.set({ enabled: true });
   chrome.alarms.create("refresh-mirrors", { periodInMinutes: 30 });
@@ -121,7 +121,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       await chrome.storage.session.set({ tabRoutes: {} });
       await applyNetworkRules(await loadCachedOrBundled());
     }
-    sendResponse(await chrome.storage.local.get(["data", "enabled", "activeTarget", "recoveryTarget", "manualTarget", "dataSource", "lastError", "fetchedAt", "routingAvailable"]));
+    sendResponse(await chrome.storage.local.get(["data", "enabled", "activeTarget", "manualTarget", "dataSource", "lastError", "fetchedAt", "routingAvailable"]));
   })();
   return true;
 });

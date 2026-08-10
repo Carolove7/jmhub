@@ -19,7 +19,7 @@ JMHub 使用 GitHub Actions 定时抓取 [JM 镜像发布页](https://jmcomicmi.
 - 访问 `18comic.vip`、`18comic.ink` 及其子页面时转向安全的中国区镜像。
 - 优先通过 `g.blfrp.cn` 加速读取 GitHub 上的镜像 JSON，失败后回退到 GitHub Raw。
 - 始终按“内地网络 → 分流 1 → 分流 2”的顺序选择中国区地址。
-- 如果主站自动跳到 `jmcomic-zzz.one` 或 `jmcomic-zzz.org`，动态规则会再次将请求改回当前中国区镜像。
+- 直接访问 `jmcomic-zzz.one`、`jmcomic-zzz.org`，或主站自动跳到这些域名时，动态规则都会再次将请求改回当前首选中国区镜像。
 - 弹窗显示镜像状态，并允许刷新、启停和手动选择安全线路。
 
 ## 安装扩展
