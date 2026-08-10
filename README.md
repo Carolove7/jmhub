@@ -4,7 +4,9 @@
 
 ## Chrome 扩展
 
-`extension/` 是 Manifest V3 扩展。加载该文件夹后，访问 `https://18comic.vip`、`https://18comic.ink` 及其子页面会保留原路径、查询参数和锚点，自动跳转到 JSON 中按「内地网络 → 分流1 → 分流2」顺序排列的首个镜像。
+`extension/` 是 Manifest V3 扩展。加载该文件夹后，访问 `https://18comic.vip`、`https://18comic.ink` 及其子页面会保留原路径和查询参数，自动跳转到 JSON 中按「内地网络 → 分流1 → 分流2」顺序排列的首个镜像。
+
+扩展使用 Chrome `declarativeNetRequest` 动态规则，在请求主站之前同步替换域名。因此即使主站会依据 IP 自动分配东南亚线路，也不会先连接主站或被它二次分流。扩展同时内置最近一次镜像作为首次启动兜底，并支持在弹窗中手动选择中国区线路。
 
 扩展优先通过以下加速地址读取数据：
 

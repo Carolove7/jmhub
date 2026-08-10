@@ -1,1 +1,16 @@
-<!doctype html><meta charset="utf-8"><style>body{font:13px Arial;width:280px;padding:12px}button{margin:4px 0;padding:6px;width:100%}#target{word-break:break-all;color:#1769aa}</style><h3>JMHub 镜像跳转</h3><label><input id="enabled" type="checkbox"> 自动跳转</label><p>当前目标：<br><span id="target">加载中…</span></p><p id="updated"></p><button id="refresh">刷新镜像数据</button><script src="popup.js"></script>
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="popup.css"></head>
+<body>
+  <header><div class="logo">J</div><div><h1>JMHub</h1><p>中国区镜像直达</p></div><label class="switch"><input id="enabled" type="checkbox"><span></span></label></header>
+  <main>
+    <section class="hero"><span class="pulse"></span><div><small>当前高速线路</small><strong id="target">正在载入…</strong></div></section>
+    <div class="meta"><span id="source">本地缓存</span><span id="updated">--</span></div>
+    <section><div class="title"><h2>镜像线路</h2><button id="auto" class="text-button">恢复自动</button></div><div id="routes" class="routes"></div></section>
+    <p id="error" class="error" hidden></p>
+    <button id="refresh" class="primary"><span>↻</span> 立即刷新镜像数据</button>
+    <p class="tip">请求会在连接主站前被同步改写，不受主站 IP 分流影响。</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

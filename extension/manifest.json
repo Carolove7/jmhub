@@ -1,10 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "JMHub 中国区镜像自动跳转",
-  "version": "1.0.0",
-  "description": "访问 18comic.vip 或 18comic.ink 时跳转到最新中国区镜像。",
-  "permissions": ["storage", "alarms", "webNavigation", "tabs"],
-  "host_permissions": ["https://*/*"],
-  "background": {"service_worker": "background.js"},
-  "action": {"default_popup": "popup.html", "default_title": "JMHub 镜像跳转"}
+  "name": "JMHub 中国区镜像直达",
+  "version": "2.0.0",
+  "description": "在请求发出前将 18comic.vip 和 18comic.ink 同步改写为最新中国区镜像。",
+  "permissions": ["storage", "alarms", "declarativeNetRequest"],
+  "host_permissions": ["https://*/*", "http://18comic.vip/*", "http://18comic.ink/*"],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "JMHub 中国区镜像直达"
+  }
 }
