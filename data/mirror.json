@@ -9,33 +9,33 @@
     "https://jmcomic-zzz.org"
   ],
   "china": [
-    "https://comic18j-rita.cc"
+    "https://comic18j-rita.net"
   ],
   "flow1": [
-    "https://jm18c-dfg.org"
+    "https://comic18j-rita.club"
   ],
   "flow2": [
-    "https://comic18j-rita.me"
+    "https://comic18j-bibi.cc"
   ],
   "checked": {
-    "https://comic18j-rita.cc": {
+    "https://comic18j-rita.net": {
       "safe": false,
       "ok": false,
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://jm18c-dfg.org": {
+    "https://comic18j-rita.club": {
       "safe": false,
       "ok": false,
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-rita.me": {
+    "https://comic18j-bibi.cc": {
       "safe": false,
       "ok": false,
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-08-10T16:38:10Z"
+  "updated_at": "2026-08-25T04:52:56Z"
 }
