@@ -12,7 +12,7 @@
     "https://comic18j-rita.net"
   ],
   "flow1": [
-    "https://comic18j-rita.club"
+    "https://comic18j-bibi.me"
   ],
   "flow2": [
     "https://comic18j-bibi.cc"
@@ -24,7 +24,7 @@
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-rita.club": {
+    "https://comic18j-bibi.me": {
       "safe": false,
       "ok": false,
       "status": 301,
@@ -37,5 +37,5 @@
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-08-25T04:52:56Z"
+  "updated_at": "2026-09-02T06:25:35Z"
 }
