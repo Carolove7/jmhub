@@ -12,10 +12,10 @@
     "https://comic18j-jjeg.cc"
   ],
   "flow1": [
-    "https://comic18j-bibi.net"
+    "https://comic18j-jjeg.me"
   ],
   "flow2": [
-    "https://comic18j-bibi.club"
+    "https://comic18j-jjeg.net"
   ],
   "checked": {
     "https://comic18j-jjeg.cc": {
@@ -24,18 +24,18 @@
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-bibi.net": {
+    "https://comic18j-jjeg.me": {
       "safe": false,
       "ok": false,
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-bibi.club": {
+    "https://comic18j-jjeg.net": {
       "safe": false,
       "ok": false,
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-09-08T06:32:04Z"
+  "updated_at": "2026-09-10T05:17:37Z"
 }
