@@ -12,7 +12,7 @@
     "https://comic18j-jjeg.cc"
   ],
   "flow1": [
-    "https://comic18j-hbd.work"
+    "https://comic18j-hbd.online"
   ],
   "flow2": [
     "https://comic18j-jjeg.club"
@@ -24,7 +24,7 @@
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-hbd.work": {
+    "https://comic18j-hbd.online": {
       "safe": false,
       "ok": false,
       "status": 301,
@@ -37,5 +37,5 @@
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-09-16T05:16:10Z"
+  "updated_at": "2026-09-20T07:01:37Z"
 }
