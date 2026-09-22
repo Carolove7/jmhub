@@ -9,7 +9,7 @@
     "https://jmcomic-zzz.org"
   ],
   "china": [
-    "https://comic18j-jjeg.cc"
+    "https://comic18j-hbd.space"
   ],
   "flow1": [
     "https://comic18j-hbd.online"
@@ -18,7 +18,7 @@
     "https://comic18j-jjeg.club"
   ],
   "checked": {
-    "https://comic18j-jjeg.cc": {
+    "https://comic18j-hbd.space": {
       "safe": false,
       "ok": false,
       "status": 301,
@@ -37,5 +37,5 @@
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-09-20T07:01:37Z"
+  "updated_at": "2026-09-22T06:47:21Z"
 }
