@@ -15,7 +15,7 @@
     "https://comic18j-ada.online"
   ],
   "flow2": [
-    "https://comic18j-jjeg.club"
+    "https://comic18j-ada.site"
   ],
   "checked": {
     "https://comic18j-ada.space": {
@@ -30,12 +30,12 @@
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-jjeg.club": {
+    "https://comic18j-ada.site": {
       "safe": false,
       "ok": false,
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-09-28T19:39:43Z"
+  "updated_at": "2026-09-29T05:41:43Z"
 }
