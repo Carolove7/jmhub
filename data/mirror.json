@@ -1,7 +1,8 @@
 {
   "source": "https://jmcomicmi.net/",
   "global": [
-    "https://18comio.sbs"
+    "https://18comic.vip",
+    "https://18comic.ink"
   ],
   "southeast_asia": [
     "https://jmcomic-zzz.one",
@@ -36,5 +37,5 @@
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-09-30T12:31:43Z"
+  "updated_at": "2026-09-30T18:07:45Z"
 }
