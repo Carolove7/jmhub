@@ -9,22 +9,22 @@
     "https://jmcomic-zzz.org"
   ],
   "china": [
-    "https://comic18j-ada.space"
+    "https://comic18j-guta.site"
   ],
   "flow1": [
-    "https://comic18j-ada.online"
+    "https://comic18j-guta.work"
   ],
   "flow2": [
     "https://comic18j-ada.work"
   ],
   "checked": {
-    "https://comic18j-ada.space": {
+    "https://comic18j-guta.site": {
       "safe": false,
       "ok": false,
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-ada.online": {
+    "https://comic18j-guta.work": {
       "safe": false,
       "ok": false,
       "status": 301,
@@ -37,5 +37,5 @@
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-10-02T11:21:06Z"
+  "updated_at": "2026-10-09T07:22:41Z"
 }
