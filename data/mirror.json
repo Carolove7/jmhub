@@ -9,33 +9,33 @@
     "https://jmcomic-zzz.org"
   ],
   "china": [
-    "https://comic18j-guta.site"
+    "https://jm18c-jjd.club"
   ],
   "flow1": [
-    "https://comic18j-guta.work"
+    "https://jm18c-uoi.net"
   ],
   "flow2": [
-    "https://comic18j-ada.work"
+    "https://jm18c-tdc.cc"
   ],
   "checked": {
-    "https://comic18j-guta.site": {
+    "https://jm18c-jjd.club": {
       "safe": false,
       "ok": false,
       "status": 301,
-      "redirect_to": "https://18comic.vip/"
+      "redirect_to": "https://comic18j-guta.site/"
     },
-    "https://comic18j-guta.work": {
+    "https://jm18c-uoi.net": {
       "safe": false,
       "ok": false,
       "status": 301,
-      "redirect_to": "https://18comic.vip/"
+      "redirect_to": "https://comic18j-guta.work/"
     },
-    "https://comic18j-ada.work": {
+    "https://jm18c-tdc.cc": {
       "safe": false,
       "ok": false,
       "status": 301,
-      "redirect_to": "https://18comic.vip/"
+      "redirect_to": "https://comic18j-ada.work/"
     }
   },
-  "updated_at": "2026-10-09T07:22:41Z"
+  "updated_at": "2026-10-16T09:46:45Z"
 }
