@@ -9,7 +9,7 @@
     "https://jmcomic-zzz.org"
   ],
   "china": [
-    "https://comic18j-guta.site"
+    "https://comic18j-guta.quest"
   ],
   "flow1": [
     "https://comic18j-guta.work"
@@ -18,7 +18,7 @@
     "https://comic18j-ada.work"
   ],
   "checked": {
-    "https://comic18j-guta.site": {
+    "https://comic18j-guta.quest": {
       "safe": false,
       "ok": false,
       "status": 301,
@@ -37,5 +37,5 @@
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-10-16T14:19:27Z"
+  "updated_at": "2026-10-21T11:45:39Z"
 }
