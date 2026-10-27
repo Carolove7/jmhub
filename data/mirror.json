@@ -12,7 +12,7 @@
     "https://comic18j-moco.work"
   ],
   "flow1": [
-    "https://comic18j-moco.site"
+    "https://comic18j-moco.quest"
   ],
   "flow2": [
     "https://comic18j-ada.work"
@@ -24,7 +24,7 @@
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-moco.site": {
+    "https://comic18j-moco.quest": {
       "safe": false,
       "ok": false,
       "status": 301,
@@ -37,5 +37,5 @@
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-10-26T06:10:26Z"
+  "updated_at": "2026-10-27T07:49:42Z"
 }
