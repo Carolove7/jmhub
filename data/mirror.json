@@ -9,7 +9,7 @@
     "https://jmcomic-zzz.org"
   ],
   "china": [
-    "https://comic18j-moco.work"
+    "https://comic18j-nini.com"
   ],
   "flow1": [
     "https://comic18j-nico.site"
@@ -18,7 +18,7 @@
     "https://comic18j-ada.work"
   ],
   "checked": {
-    "https://comic18j-moco.work": {
+    "https://comic18j-nini.com": {
       "safe": false,
       "ok": false,
       "status": 301,
@@ -37,5 +37,5 @@
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-10-29T13:43:31Z"
+  "updated_at": "2026-11-04T07:29:10Z"
 }
