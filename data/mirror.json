@@ -12,10 +12,10 @@
     "https://comic18j-nini.com"
   ],
   "flow1": [
-    "https://comic18j-nico.site"
+    "https://comic18j-nico.work"
   ],
   "flow2": [
-    "https://comic18j-ada.work"
+    "https://comic18j-neo.com"
   ],
   "checked": {
     "https://comic18j-nini.com": {
@@ -24,18 +24,18 @@
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-nico.site": {
+    "https://comic18j-nico.work": {
       "safe": false,
       "ok": false,
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     },
-    "https://comic18j-ada.work": {
+    "https://comic18j-neo.com": {
       "safe": false,
       "ok": false,
       "status": 301,
       "redirect_to": "https://18comic.vip/"
     }
   },
-  "updated_at": "2026-11-04T07:29:10Z"
+  "updated_at": "2026-11-11T10:53:35Z"
 }
